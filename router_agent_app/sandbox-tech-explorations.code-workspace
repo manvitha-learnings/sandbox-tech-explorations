@@ -1,0 +1,35 @@
+{
+	"folders": [
+		{
+			"path": "../../../sandbox-tech-explorations"
+		},
+		{
+			"path": "../.venv"
+		},
+		{
+			"path": "../adk-agent-project"
+		},
+		{
+			"path": "../multi_tool_agent"
+		},
+		{
+			"path": "../my_agent"
+		},
+		{
+			"path": "../python-projects"
+		},
+		{
+			"path": "../python3 -m venv .venv"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "../terraform-project"
+		},
+		{
+			"path": "../website"
+		}
+	],
+	"settings": {}
+}
