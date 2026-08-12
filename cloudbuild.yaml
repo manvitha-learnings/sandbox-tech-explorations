@@ -1,0 +1,12 @@
+steps:
+  - name: 'python:3.12'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        python --version
+        pip install --no-cache-dir -r requirements.txt
+        python -m compileall -q adk-agent-project multi_tool_agent my_agent router_agent_app
+
+options:
+  logging: CLOUD_LOGGING_ONLY
