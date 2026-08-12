@@ -1,4 +1,5 @@
 steps:
+  # 1. Install dependencies and validate Python code
   - name: 'python:3.12'
     entrypoint: 'bash'
     args:
@@ -7,6 +8,38 @@ steps:
         python --version
         pip install --no-cache-dir -r requirements.txt
         python -m compileall -q adk-agent-project multi_tool_agent my_agent router_agent_app
+
+  # 2. Build Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/adk-repo/adk-agent'
+      - '.'
+
+  # 3. Push image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/adk-repo/adk-agent'
+
+  # 4. Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'adk-agent'
+      - '--image'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/adk-repo/adk-agent'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+
+images:
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/adk-repo/adk-agent'
 
 options:
   logging: CLOUD_LOGGING_ONLY
