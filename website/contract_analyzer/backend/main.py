@@ -80,14 +80,37 @@ async def analyze_contract(file: UploadFile = File(...)):
     filename = file.filename or ""
     content_type = file.content_type or ""
     
-    # 1. Extract text from the file
+    # 1. Validate file extension and type
+    filename_lower = filename.lower()
+    is_pdf = filename_lower.endswith(".pdf") or "application/pdf" in content_type.lower()
+    is_txt = filename_lower.endswith(".txt") or "text/plain" in content_type.lower()
+    
+    if not (is_pdf or is_txt):
+        raise HTTPException(
+            status_code=400,
+            detail="Unsupported file type. Only PDF (.pdf) and Text (.txt) files are allowed."
+        )
+
+    # 2. Read and validate size (limit to 5MB)
+    MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
+    try:
+        file_bytes = await file.read()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to read file: {str(e)}")
+
+    if len(file_bytes) > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=400,
+            detail="File size exceeds the maximum limit of 5 MB."
+        )
+
+    # 3. Extract text from the file
     text = ""
     try:
-        if filename.endswith(".pdf") or "pdf" in content_type:
+        if is_pdf:
             # Parse PDF
-            pdf_bytes = await file.read()
             from io import BytesIO
-            reader = PdfReader(BytesIO(pdf_bytes))
+            reader = PdfReader(BytesIO(file_bytes))
             text_parts = []
             for page in reader.pages:
                 page_text = page.extract_text()
@@ -96,8 +119,7 @@ async def analyze_contract(file: UploadFile = File(...)):
             text = "\n".join(text_parts)
         else:
             # Parse text
-            content = await file.read()
-            text = content.decode("utf-8", errors="ignore")
+            text = file_bytes.decode("utf-8", errors="ignore")
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to parse contract file: {str(e)}")
         

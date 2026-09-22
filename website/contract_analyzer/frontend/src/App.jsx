@@ -71,6 +71,26 @@ function App() {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatHistory, isChatLoading]);
 
+  // Validate File type and size
+  const validateFile = (selectedFile) => {
+    setError(null);
+    if (!selectedFile) return false;
+
+    const allowedExtensions = /(\.pdf|\.txt)$/i;
+    if (!allowedExtensions.exec(selectedFile.name)) {
+      setError("Unsupported file type. Only PDF (.pdf) and Text (.txt) files are allowed.");
+      return false;
+    }
+
+    const maxSize = 5 * 1024 * 1024; // 5 MB
+    if (selectedFile.size > maxSize) {
+      setError("File size exceeds the maximum limit of 5 MB.");
+      return false;
+    }
+
+    return true;
+  };
+
   // Handle Drag & Drop
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -79,13 +99,34 @@ function App() {
   const handleDrop = (e) => {
     e.preventDefault();
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setFile(e.dataTransfer.files[0]);
+      const droppedFile = e.dataTransfer.files[0];
+      if (validateFile(droppedFile)) {
+        setFile(droppedFile);
+      } else {
+        setFile(null);
+      }
+    }
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const selectedFile = e.target.files[0];
+      if (validateFile(selectedFile)) {
+        setFile(selectedFile);
+      } else {
+        setFile(null);
+        e.target.value = '';
+      }
     }
   };
 
   // Upload and Analyze
   const analyzeContract = async () => {
     if (!file) return;
+    if (!validateFile(file)) {
+      setFile(null);
+      return;
+    }
     setIsAnalyzing(true);
     setError(null);
     setAnalysis(null);
@@ -253,7 +294,7 @@ Please help answer user questions based on this contract.`;
                 type="file" 
                 id="file-select"
                 accept=".pdf,.txt"
-                onChange={(e) => setFile(e.target.files[0])}
+                onChange={handleFileChange}
                 className="hidden"
               />
               <label 
