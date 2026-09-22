@@ -1,0 +1,6 @@
+google-cloud-aiplatform[adk,agent_engines]
+google-adk[a2a]==2.6.2
+mcp<2.0.0
+fastmcp>=0.4.1
+httpx
+python-dotenv
