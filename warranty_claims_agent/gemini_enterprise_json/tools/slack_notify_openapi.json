@@ -1,0 +1,81 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Warranty QE Slack Notification API",
+    "description": "Tool for Gemini Enterprise to dispatch triage alerts to the #warranty-qe channel.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://warranty-claims-triage-agent-YOUR_HASH-uc.a.run.app"
+    }
+  ],
+  "paths": {
+    "/api/v1/slack-alerts": {
+      "post": {
+        "operationId": "notifyWarrantyQeChannel",
+        "summary": "Notify #warranty-qe Slack channel",
+        "description": "Sends a formatted alert block to the Quality Engineering Slack channel.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "headline",
+                  "summary",
+                  "severity"
+                ],
+                "properties": {
+                  "headline": {
+                    "type": "string",
+                    "description": "High-impact alert headline"
+                  },
+                  "summary": {
+                    "type": "string",
+                    "description": "Summary of defect symptoms, claim volume, and immediate containment"
+                  },
+                  "severity": {
+                    "type": "string",
+                    "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"],
+                    "description": "Severity tier"
+                  },
+                  "ticket_id": {
+                    "type": "string",
+                    "description": "Associated QE ticket ID"
+                  },
+                  "affected_model": {
+                    "type": "string",
+                    "description": "Vehicle model"
+                  },
+                  "claim_count": {
+                    "type": "integer",
+                    "description": "Number of claims identified"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Notification dispatched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "channel": { "type": "string" },
+                    "timestamp": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

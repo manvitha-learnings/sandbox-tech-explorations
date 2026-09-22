@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Warranty Claims Triage Agent - Quality Engineering</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    code, pre { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+
+  <!-- Top Navbar -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-6 py-3.5 flex items-center justify-between">
+    <div class="flex items-center space-x-3">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+        <i class="fa-solid fa-car-burst text-white text-base"></i>
+      </div>
+      <div>
+        <h1 class="text-base font-semibold text-white tracking-tight flex items-center gap-2">
+          Warranty Claims Triage Agent
+          <span class="text-xs bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded-full font-medium">Quality Engineering</span>
+        </h1>
+        <p class="text-xs text-slate-400">Automotive defect spike detection & TSB correlation engine</p>
+      </div>
+    </div>
+    
+    <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-2 text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="font-medium">Local Runtime Active</span>
+      </div>
+      <a href="/docs" target="_blank" class="text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-md border border-slate-700 transition flex items-center gap-1.5">
+        <i class="fa-solid fa-bolt text-amber-400"></i>
+        <span>API Docs (/docs)</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <div class="flex-1 flex overflow-hidden">
+
+    <!-- Left Sidebar: Data Sources & Presets -->
+    <aside class="w-80 border-r border-slate-800 bg-slate-900/50 p-5 flex flex-col space-y-6 overflow-y-auto">
+      
+      <!-- Scenario Buttons -->
+      <div>
+        <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+          <i class="fa-solid fa-wand-magic-sparkles text-indigo-400"></i>
+          <span>Sample Triage Scenarios</span>
+        </h2>
+        <div class="space-y-2">
+          <button onclick="triggerPrompt('Any recurring issues with the Model X rear axle claims this month?')" class="w-full text-left p-2.5 rounded-lg bg-slate-800/80 hover:bg-indigo-900/30 border border-slate-700 hover:border-indigo-500/50 transition group">
+            <div class="text-xs font-medium text-slate-200 group-hover:text-indigo-300 flex items-center justify-between">
+              <span>Recurring Issues Spike</span>
+              <i class="fa-solid fa-arrow-right text-[10px] opacity-0 group-hover:opacity-100 transition"></i>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-0.5 line-clamp-1">Model X rear axle claims & TSB match</p>
+          </button>
+
+          <button onclick="triggerPrompt('Summarize warranty claims for VIN prefix 1XYZ4A2X in the last 30 days')" class="w-full text-left p-2.5 rounded-lg bg-slate-800/80 hover:bg-indigo-900/30 border border-slate-700 hover:border-indigo-500/50 transition group">
+            <div class="text-xs font-medium text-slate-200 group-hover:text-indigo-300 flex items-center justify-between">
+              <span>VIN Prefix Summary</span>
+              <i class="fa-solid fa-arrow-right text-[10px] opacity-0 group-hover:opacity-100 transition"></i>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-0.5 line-clamp-1">Batch 1XYZ4A2X mileage & cost distribution</p>
+          </button>
+
+          <button onclick="triggerPrompt('Does this claim match any open TSB for Model X rear axle whine?')" class="w-full text-left p-2.5 rounded-lg bg-slate-800/80 hover:bg-indigo-900/30 border border-slate-700 hover:border-indigo-500/50 transition group">
+            <div class="text-xs font-medium text-slate-200 group-hover:text-indigo-300 flex items-center justify-between">
+              <span>TSB Matching Check</span>
+              <i class="fa-solid fa-arrow-right text-[10px] opacity-0 group-hover:opacity-100 transition"></i>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-0.5 line-clamp-1">Correlates with TSB-25-03-014 root cause</p>
+          </button>
+        </div>
+      </div>
+
+      <!-- Connected Mock Data Sources -->
+      <div class="pt-4 border-t border-slate-800">
+        <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+          <i class="fa-solid fa-database text-slate-400"></i>
+          <span>Connected Knowledge Stores</span>
+        </h2>
+        <div class="space-y-2 text-xs">
+          <div class="flex items-center justify-between p-2 rounded bg-slate-800/50 border border-slate-800">
+            <span class="text-slate-300 flex items-center gap-2"><i class="fa-solid fa-file-invoice text-indigo-400"></i> Warranty Claims DB</span>
+            <span class="text-[11px] bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded font-mono">4 loaded</span>
+          </div>
+          <div class="flex items-center justify-between p-2 rounded bg-slate-800/50 border border-slate-800">
+            <span class="text-slate-300 flex items-center gap-2"><i class="fa-solid fa-book text-amber-400"></i> TSB Repository</span>
+            <span class="text-[11px] bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded font-mono">3 bulletins</span>
+          </div>
+          <div class="flex items-center justify-between p-2 rounded bg-slate-800/50 border border-slate-800">
+            <span class="text-slate-300 flex items-center gap-2"><i class="fa-solid fa-wrench text-blue-400"></i> Dealer Repair Orders</span>
+            <span class="text-[11px] bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded font-mono">3 orders</span>
+          </div>
+          <div class="flex items-center justify-between p-2 rounded bg-slate-800/50 border border-slate-800">
+            <span class="text-slate-300 flex items-center gap-2"><i class="fa-solid fa-shield-halved text-emerald-400"></i> QE Wiki & Protocols</span>
+            <span class="text-[11px] bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded font-mono">3 articles</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agent Architecture -->
+      <div class="mt-auto pt-4 border-t border-slate-800 text-[11px] text-slate-400 space-y-1">
+        <p><strong class="text-slate-300">Model:</strong> gemini-2.5-flash</p>
+        <p><strong class="text-slate-300">Runtime:</strong> Google ADK + FastAPI</p>
+        <p><strong class="text-slate-300">Billing:</strong> 100% Free Tier (Gemini API)</p>
+      </div>
+    </aside>
+
+    <!-- Main Content Area: Chat & Triage Stream -->
+    <main class="flex-1 flex flex-col bg-slate-950 overflow-hidden">
+      
+      <!-- Messages Scroll Area -->
+      <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-6">
+        
+        <!-- Welcome Banner -->
+        <div class="p-4 rounded-xl bg-gradient-to-r from-indigo-950/40 via-slate-900 to-slate-900 border border-indigo-800/30 flex items-start gap-3">
+          <div class="w-8 h-8 rounded-full bg-indigo-600/30 text-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
+            <i class="fa-solid fa-info text-xs"></i>
+          </div>
+          <div class="text-xs space-y-1 text-slate-300">
+            <p class="font-semibold text-white">Welcome to the Warranty Claims Triage Agent.</p>
+            <p>This agent analyzes warranty claims, technician diagnostic notes, and TSBs in real time. It calculates severity scores (1-10), flags safety risks, creates QE Jira tickets, and dispatches Slack notifications.</p>
+            <p class="text-slate-400 pt-1">Try asking a question below or click one of the quick scenario buttons on the left.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Input Bar -->
+      <div class="p-4 border-t border-slate-800 bg-slate-900/70">
+        <form id="triage-form" onsubmit="handleFormSubmit(event)" class="flex gap-2">
+          <div class="relative flex-1">
+            <input 
+              type="text" 
+              id="prompt-input" 
+              placeholder="Ask about warranty claims, defect patterns, or TSBs (e.g. Any recurring issues with Model X?)..." 
+              class="w-full bg-slate-800 border border-slate-700 text-sm text-white placeholder-slate-400 rounded-lg px-4 py-3 focus:outline-none focus:border-indigo-500 transition shadow-inner"
+              required
+            />
+          </div>
+          <button 
+            type="submit" 
+            id="submit-btn"
+            class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium px-5 py-3 rounded-lg shadow-lg shadow-indigo-600/20 transition flex items-center gap-2"
+          >
+            <span>Triage</span>
+            <i class="fa-solid fa-paper-plane text-xs"></i>
+          </button>
+        </form>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    const messagesContainer = document.getElementById('chat-messages');
+    const promptInput = document.getElementById('prompt-input');
+    const submitBtn = document.getElementById('submit-btn');
+
+    function triggerPrompt(text) {
+      promptInput.value = text;
+      handleFormSubmit(new Event('submit'));
+    }
+
+    async function handleFormSubmit(e) {
+      if (e) e.preventDefault();
+      const query = promptInput.value.trim();
+      if (!query) return;
+
+      // 1. Add User Message
+      appendUserMessage(query);
+      promptInput.value = '';
+      promptInput.disabled = true;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-sm"></i> Analyzing...';
+
+      // 2. Add Loading Indicator
+      const loadingId = appendLoadingIndicator();
+
+      try {
+        const response = await fetch('/api/v1/triage', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: query })
+        });
+
+        const data = await response.json();
+        removeElement(loadingId);
+        appendAgentResponse(data);
+      } catch (err) {
+        removeElement(loadingId);
+        appendErrorMessage(err.message || 'Failed to analyze claims');
+      } finally {
+        promptInput.disabled = false;
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>Triage</span> <i class="fa-solid fa-paper-plane text-xs"></i>';
+        promptInput.focus();
+      }
+    }
+
+    function appendUserMessage(text) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'flex justify-end';
+      msgDiv.innerHTML = `
+        <div class="bg-indigo-600 text-white rounded-2xl rounded-tr-sm px-4 py-2.5 max-w-xl text-sm shadow-md">
+          ${escapeHtml(text)}
+        </div>
+      `;
+      messagesContainer.appendChild(msgDiv);
+      scrollToBottom();
+    }
+
+    function appendLoadingIndicator() {
+      const id = 'loading-' + Date.now();
+      const loadDiv = document.createElement('div');
+      loadDiv.id = id;
+      loadDiv.className = 'flex items-start gap-3';
+      loadDiv.innerHTML = `
+        <div class="w-8 h-8 rounded-full bg-indigo-600/30 text-indigo-400 flex items-center justify-center shrink-0">
+          <i class="fa-solid fa-robot text-xs"></i>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-sm p-4 text-xs text-slate-400 flex items-center gap-2">
+          <i class="fa-solid fa-spinner fa-spin text-indigo-400"></i>
+          <span>Cross-referencing claims DB, repair orders, and TSBs...</span>
+        </div>
+      `;
+      messagesContainer.appendChild(loadDiv);
+      scrollToBottom();
+      return id;
+    }
+
+    function appendAgentResponse(data) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'flex items-start gap-3';
+
+      let severityBadge = '';
+      if (data.severity_assessment) {
+        const score = data.severity_assessment.overall_score;
+        const tier = data.severity_assessment.criticality_tier;
+        let colorClasses = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+        if (tier === 'CRITICAL') colorClasses = 'bg-red-500/10 text-red-400 border-red-500/30';
+        else if (tier === 'HIGH') colorClasses = 'bg-amber-500/10 text-amber-400 border-amber-500/30';
+        else if (tier === 'MEDIUM') colorClasses = 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30';
+
+        severityBadge = `
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg border ${colorClasses}">
+            <i class="fa-solid fa-triangle-exclamation text-xs"></i>
+            <span class="font-bold tracking-wide">${tier}</span>
+            <span class="text-xs opacity-80">(${score}/10)</span>
+          </div>
+        `;
+      }
+
+      let clustersHtml = '';
+      if (data.clusters && data.clusters.length > 0) {
+        clustersHtml = `
+          <div class="mt-4 pt-3 border-t border-slate-800">
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+              <i class="fa-solid fa-layer-group text-indigo-400"></i> Identified Failure Clusters
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+              ${data.clusters.map(c => `
+                <div class="p-3 bg-slate-950/60 rounded-lg border border-slate-800 text-xs">
+                  <div class="font-semibold text-white flex justify-between">
+                    <span>${escapeHtml(c.component)}</span>
+                    <span class="text-indigo-400 font-mono">${escapeHtml(c.vin_prefix)}</span>
+                  </div>
+                  <div class="text-slate-400 mt-1 flex justify-between">
+                    <span>Claims: <strong class="text-slate-200">${c.claim_count}</strong></span>
+                    <span>Avg Cost: <strong class="text-slate-200">$${c.average_parts_cost?.toLocaleString()}</strong></span>
+                  </div>
+                  <div class="text-[11px] text-slate-500 mt-1.5 line-clamp-2">
+                    Symptoms: ${escapeHtml(c.primary_symptoms?.join(', ') || 'N/A')}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      let tsbHtml = '';
+      if (data.tsb_matches && data.tsb_matches.length > 0) {
+        tsbHtml = `
+          <div class="mt-4 pt-3 border-t border-slate-800">
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+              <i class="fa-solid fa-book-bookmark text-amber-400"></i> Matched Technical Service Bulletins
+            </h4>
+            <div class="space-y-2">
+              ${data.tsb_matches.map(t => `
+                <div class="p-3 bg-slate-950/60 rounded-lg border border-amber-900/30 text-xs">
+                  <div class="flex items-center justify-between">
+                    <span class="font-bold text-amber-300">${escapeHtml(t.tsb_id)}</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20">${escapeHtml(t.status)}</span>
+                  </div>
+                  <div class="font-medium text-slate-200 mt-1">${escapeHtml(t.title)}</div>
+                  <div class="text-slate-400 text-[11px] mt-1"><strong>Root Cause:</strong> ${escapeHtml(t.root_cause || 'N/A')}</div>
+                  <div class="text-slate-400 text-[11px] mt-0.5"><strong>Repair:</strong> ${escapeHtml(t.repair_procedure || 'N/A')}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      let actionsHtml = '';
+      if (data.actions_taken && data.actions_taken.length > 0) {
+        actionsHtml = `
+          <div class="mt-4 pt-3 border-t border-slate-800">
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+              <i class="fa-solid fa-bolt text-emerald-400"></i> Automated Actions Dispatched
+            </h4>
+            <div class="space-y-2">
+              ${data.actions_taken.map(a => {
+                if (a.action === 'create_qe_ticket') {
+                  const t = a.details;
+                  return `
+                    <div class="p-3 bg-indigo-950/30 rounded-lg border border-indigo-800/40 text-xs flex items-center justify-between">
+                      <div>
+                        <div class="font-semibold text-indigo-300 flex items-center gap-2">
+                          <i class="fa-solid fa-ticket text-indigo-400"></i>
+                          <span>QE Ticket Created: <strong>${escapeHtml(t.ticket_id)}</strong></span>
+                          <span class="text-[10px] px-1.5 py-0.5 bg-red-500/20 text-red-300 rounded border border-red-500/30">${escapeHtml(t.severity)}</span>
+                        </div>
+                        <div class="text-slate-400 text-[11px] mt-0.5">${escapeHtml(t.title)}</div>
+                      </div>
+                      <span class="text-[11px] text-indigo-400 font-mono">Assigned: ${escapeHtml(t.assigned_team)}</span>
+                    </div>
+                  `;
+                } else if (a.action === 'notify_slack_channel') {
+                  return `
+                    <div class="p-3 bg-emerald-950/20 rounded-lg border border-emerald-800/30 text-xs flex items-center justify-between">
+                      <div class="flex items-center gap-2 text-emerald-300">
+                        <i class="fa-brands fa-slack text-emerald-400"></i>
+                        <span>Alert card posted to <strong>#warranty-qe</strong></span>
+                      </div>
+                      <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">Delivered</span>
+                    </div>
+                  `;
+                }
+                return '';
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      msgDiv.innerHTML = `
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-violet-600 text-white flex items-center justify-center shrink-0 mt-1 shadow">
+          <i class="fa-solid fa-robot text-xs"></i>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-sm p-5 max-w-2xl text-xs space-y-3 shadow-xl">
+          
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-slate-300 text-sm">Triage Assessment</span>
+            ${severityBadge}
+          </div>
+
+          <div class="text-slate-200 leading-relaxed text-sm whitespace-pre-wrap">${escapeHtml(data.summary)}</div>
+
+          ${clustersHtml}
+          ${tsbHtml}
+          ${actionsHtml}
+
+        </div>
+      `;
+
+      messagesContainer.appendChild(msgDiv);
+      scrollToBottom();
+    }
+
+    function appendErrorMessage(errorText) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'flex items-start gap-3';
+      msgDiv.innerHTML = `
+        <div class="w-8 h-8 rounded-full bg-red-600/20 text-red-400 flex items-center justify-center shrink-0">
+          <i class="fa-solid fa-circle-exclamation text-xs"></i>
+        </div>
+        <div class="bg-red-950/30 border border-red-800/50 rounded-2xl rounded-tl-sm p-4 text-xs text-red-300">
+          <strong>Error:</strong> ${escapeHtml(errorText)}
+        </div>
+      `;
+      messagesContainer.appendChild(msgDiv);
+      scrollToBottom();
+    }
+
+    function removeElement(id) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    }
+
+    function scrollToBottom() {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>

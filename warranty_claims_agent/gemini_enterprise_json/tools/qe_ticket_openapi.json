@@ -1,0 +1,93 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Quality Engineering Ticketing API",
+    "description": "Tool for Gemini Enterprise to create QE investigation tickets for recurring warranty issues.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://warranty-claims-triage-agent-YOUR_HASH-uc.a.run.app"
+    }
+  ],
+  "paths": {
+    "/api/v1/tickets": {
+      "post": {
+        "operationId": "createQualityTicket",
+        "summary": "Create an official QE investigation ticket",
+        "description": "Creates a Jira or ServiceNow investigation ticket with severity rating and affected VIN cluster.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "title",
+                  "description",
+                  "severity",
+                  "component",
+                  "affected_model",
+                  "affected_vin_prefix",
+                  "claim_count"
+                ],
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "Short summary title of the defect investigation"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Detailed triage notes, symptom clustering, and containment recommendations"
+                  },
+                  "severity": {
+                    "type": "string",
+                    "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"],
+                    "description": "Calculated QE severity rating"
+                  },
+                  "component": {
+                    "type": "string",
+                    "description": "Affected automotive subsystem or component"
+                  },
+                  "affected_model": {
+                    "type": "string",
+                    "description": "Vehicle model"
+                  },
+                  "affected_vin_prefix": {
+                    "type": "string",
+                    "description": "8-character VIN prefix batch"
+                  },
+                  "claim_count": {
+                    "type": "integer",
+                    "description": "Number of claims clustered"
+                  },
+                  "tsb_reference": {
+                    "type": "string",
+                    "description": "Optional matching TSB ID"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ticket created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ticket_id": { "type": "string" },
+                    "status": { "type": "string" },
+                    "ticket_url": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

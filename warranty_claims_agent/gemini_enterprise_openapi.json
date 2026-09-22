@@ -1,0 +1,89 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Warranty Claims Triage Agent API",
+    "description": "Analyzes incoming warranty claims, dealer repair orders, and TSBs to detect recurring defect patterns, flag known open issues, and draft triage summaries for Quality Engineering.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://warranty-claims-triage-agent-5swwqt7jfq-uc.a.run.app",
+      "description": "Cloud Run Agent Endpoint"
+    }
+  ],
+  "paths": {
+    "/api/v1/triage": {
+      "post": {
+        "operationId": "triageWarrantyClaims",
+        "summary": "Triage warranty claims, TSBs, and repair orders",
+        "description": "Performs defect spike detection, pattern clustering, and severity scoring for vehicle models and VIN prefixes.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "query"
+                ],
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "User question or triage prompt (e.g., 'Any recurring issues with Model X rear axle?')"
+                  },
+                  "model": {
+                    "type": "string",
+                    "description": "Optional vehicle model filter (e.g., 'Model X')"
+                  },
+                  "vin_prefix": {
+                    "type": "string",
+                    "description": "Optional 8-character VIN prefix (e.g., '1XYZ4A2X')"
+                  },
+                  "component": {
+                    "type": "string",
+                    "description": "Optional component name (e.g., 'Rear Axle Assembly')"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful triage analysis",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "summary": {
+                      "type": "string"
+                    },
+                    "clusters_found": {
+                      "type": "integer"
+                    },
+                    "severity_assessment": {
+                      "type": "object"
+                    },
+                    "tsb_matches": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "actions_taken": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

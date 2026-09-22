@@ -1,0 +1,9 @@
+{
+  "name": "projects/${PROJECT_ID}/locations/${LOCATION}/tools/search-datastore-tool",
+  "displayName": "Warranty Search Data Store",
+  "description": "Searches company warranty claims, technical service bulletins (TSBs), dealer repair orders, and QE wiki documentation.",
+  "dataStoreSpec": {
+    "dataStore": "projects/${PROJECT_ID}/locations/${LOCATION}/collections/default_collection/dataStores/warranty-knowledge-base",
+    "fallbackPrompt": "Search across warranty claims, repair orders, and TSBs."
+  }
+}

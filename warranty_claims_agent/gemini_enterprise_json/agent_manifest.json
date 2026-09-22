@@ -1,0 +1,22 @@
+{
+  "name": "projects/${PROJECT_ID}/locations/${LOCATION}/agents/warranty-claims-triage-agent",
+  "displayName": "Warranty Claims Triage Agent",
+  "description": "Analyzes incoming warranty claims, dealer repair orders, and TSBs to detect recurring failure patterns, flag claims matching known open issues, and draft triage summaries for Quality Engineering.",
+  "defaultLanguageCode": "en",
+  "timeZone": "America/New_York",
+  "modelConfig": {
+    "model": "gemini-2.5-flash",
+    "temperature": 0.2,
+    "topP": 0.8
+  },
+  "instruction": "You are the Warranty Claims Triage Agent for XYZ Company's Quality Engineering team.\nYour role is to analyze incoming warranty claims, dealer repair orders, and TSBs to detect defect spikes, calculate severity scores (1-10), flag safety hazards, and escalate high-risk clusters by creating QE tickets and alerting #warranty-qe.\n\nWorkflow:\n1. Search warranty claims, repair orders, and TSBs using your tools.\n2. Cluster claims by component and VIN prefix.\n3. Compute severity scoring and open TSB alignment.\n4. If claim count >= 3 or severity is HIGH/CRITICAL, create a QE investigation ticket and alert the Slack channel.\n5. Present findings with an Executive Summary, Failure Cluster details, and Action Items.",
+  "tools": [
+    "projects/${PROJECT_ID}/locations/${LOCATION}/tools/search-datastore-tool",
+    "projects/${PROJECT_ID}/locations/${LOCATION}/tools/qe-ticket-tool",
+    "projects/${PROJECT_ID}/locations/${LOCATION}/tools/slack-notify-tool"
+  ],
+  "startPlaybook": {
+    "displayName": "Warranty Triage Playbook",
+    "goal": "Identify recurring automotive component defects and escalate them to Quality Engineering with TSB and repair order evidence."
+  }
+}

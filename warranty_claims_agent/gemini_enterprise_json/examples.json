@@ -1,0 +1,69 @@
+[
+  {
+    "displayName": "Recurring Model X Rear Axle Triage",
+    "userUtterance": "Any recurring issues with the Model X rear axle claims this month?",
+    "toolCalls": [
+      {
+        "tool": "search-datastore-tool",
+        "input": {
+          "query": "Model X rear axle claims and repair orders",
+          "filter": "model: 'Model X' AND component: 'Rear Axle Assembly'"
+        }
+      },
+      {
+        "tool": "search-datastore-tool",
+        "input": {
+          "query": "Model X rear axle whine vibration TSB"
+        }
+      },
+      {
+        "tool": "qe-ticket-tool",
+        "input": {
+          "title": "Recurring Rear Axle Pinion Failures on Model X (1XYZ4A2X)",
+          "description": "Clustered 4 claims. Symptoms: whining, grinding, severe vibration, and pinion gear teeth failure. Matches open TSB-25-03-014. Severity: CRITICAL.",
+          "severity": "CRITICAL",
+          "component": "Rear Axle Assembly",
+          "affected_model": "Model X",
+          "affected_vin_prefix": "1XYZ4A2X",
+          "claim_count": 4,
+          "tsb_reference": "TSB-25-03-014"
+        }
+      },
+      {
+        "tool": "slack-notify-tool",
+        "input": {
+          "headline": "Defect Spike Alert: Rear Axle Assembly on Model X",
+          "summary": "Identified 4 claims with 1 near-lockup incident. Severity is CRITICAL. QE Ticket created.",
+          "severity": "CRITICAL",
+          "ticket_id": "QE-2026-101",
+          "affected_model": "Model X",
+          "claim_count": 4
+        }
+      }
+    ]
+  },
+  {
+    "displayName": "VIN Prefix Summary",
+    "userUtterance": "Summarize warranty claims for VIN prefix 1XYZ4A2X in the last 30 days",
+    "toolCalls": [
+      {
+        "tool": "search-datastore-tool",
+        "input": {
+          "query": "VIN prefix 1XYZ4A2X warranty claims last 30 days"
+        }
+      }
+    ]
+  },
+  {
+    "displayName": "TSB Matching Inquiry",
+    "userUtterance": "Does this claim match any open TSB for rear axle whine?",
+    "toolCalls": [
+      {
+        "tool": "search-datastore-tool",
+        "input": {
+          "query": "TSB rear axle whine grinding noise"
+        }
+      }
+    ]
+  }
+]

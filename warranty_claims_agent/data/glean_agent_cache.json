@@ -1,0 +1,143 @@
+{
+  "agent_id": "wca_4f9c1e2b8a3d",
+  "name": "Warranty Claims Triage Agent",
+  "description": "Analyzes incoming warranty claims, dealer repair orders, and TSBs to detect recurring failure patterns, flag claims matching known open issues, and draft triage summaries for Quality Engineering.",
+  "status": "published",
+  "created_at": "2026-09-10T14:32:07Z",
+  "updated_at": "2026-09-15T09:11:44Z",
+  "created_by": "jane.doe@xyzcompany.com",
+  "instructions": "You are a triage assistant for XYZ Company's Quality Engineering team...(compiled from instructions.md)",
+  "model": {
+    "tier": "default-agentic",
+    "provider": "glean-managed"
+  },
+  "trigger": {
+    "type": "chat",
+    "examples": [
+      "Any recurring issues with the Model X rear axle claims this month?",
+      "Summarize warranty claims for VIN prefix XXXX in the last 30 days",
+      "Does this claim match any open TSB?"
+    ]
+  },
+  "input_schema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "AgentRequest",
+    "properties": {
+      "messages": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "title": "Message",
+          "properties": {
+            "role": {
+              "type": "string"
+            },
+            "content": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "MessageTextBlock",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "text"
+                    ]
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type",
+                  "text"
+                ]
+              }
+            }
+          },
+          "required": [
+            "role",
+            "content"
+          ]
+        }
+      }
+    },
+    "required": [
+      "messages"
+    ]
+  },
+  "output_schema": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "AgentResponse",
+    "properties": {
+      "messages": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "title": "Message"
+        }
+      }
+    },
+    "required": [
+      "messages"
+    ]
+  },
+  "tools": [
+    {
+      "tool_id": "glean-search",
+      "display_name": "Glean Search",
+      "type": "search",
+      "auth_type": "inherited",
+      "write_action_type": null,
+      "is_setup_finished": true,
+      "data_source": "warranty-claims-db,tsb-repository,dealer-repair-orders,quality-engineering-wiki"
+    },
+    {
+      "tool_id": "glean-chat",
+      "display_name": "Glean Chat",
+      "type": "reasoning",
+      "auth_type": "inherited",
+      "write_action_type": null,
+      "is_setup_finished": true,
+      "data_source": null
+    },
+    {
+      "tool_id": "create-quality-ticket",
+      "display_name": "Create QE Ticket",
+      "type": "custom_action",
+      "auth_type": "service_account",
+      "write_action_type": "create",
+      "is_setup_finished": true,
+      "data_source": "qe-ticketing-system"
+    },
+    {
+      "tool_id": "notify-slack-channel",
+      "display_name": "Notify Slack Channel",
+      "type": "custom_action",
+      "auth_type": "service_account",
+      "write_action_type": "create",
+      "is_setup_finished": true,
+      "data_source": "slack:#warranty-qe"
+    }
+  ],
+  "skills": [
+    {
+      "skill_id": "failure-pattern-clustering",
+      "name": "Failure Pattern Clustering"
+    },
+    {
+      "skill_id": "severity-scoring",
+      "name": "Severity Scoring"
+    }
+  ],
+  "subagents": [],
+  "permissions": {
+    "visibility": "org",
+    "shared_with_groups": [
+      "quality-engineering",
+      "warranty-ops"
+    ]
+  }
+}
