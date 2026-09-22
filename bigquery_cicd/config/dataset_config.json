@@ -1,0 +1,7 @@
+{
+  "dataset_id": "cicd_demo",
+  "location": "US",
+  "description": "Dataset for CI/CD BigQuery demonstration",
+  "table_id": "sample_customers",
+  "environment": "demo"
+}
