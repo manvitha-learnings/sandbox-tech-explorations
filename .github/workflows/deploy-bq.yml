@@ -23,6 +23,9 @@ jobs:
   validate-and-dry-run:
     name: Validate and Dry Run
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: bigquery_cicd
 
     steps:
       - name: Checkout repository
@@ -54,6 +57,9 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feature/bq/')
     needs: validate-and-dry-run
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: bigquery_cicd
 
     steps:
       - name: Checkout repository
