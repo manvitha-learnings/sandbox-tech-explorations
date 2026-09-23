@@ -39,6 +39,8 @@ jobs:
 
       - name: Set up Google Cloud CLI
         uses: google-github-actions/setup-gcloud@v2
+        with:
+          install_components: bq
 
       - name: Validate SQL file
         run: |
@@ -73,6 +75,8 @@ jobs:
 
       - name: Set up Google Cloud CLI
         uses: google-github-actions/setup-gcloud@v2
+        with:
+          install_components: bq
 
       - name: Create dataset if needed
         run: |
