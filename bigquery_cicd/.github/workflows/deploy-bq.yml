@@ -9,7 +9,7 @@ on:
 
   push:
     branches:
-      - main
+      - "feature/bq/sample-table-cicd"
     paths:
       - "bq/**"
       - "config/**"
