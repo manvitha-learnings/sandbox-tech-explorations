@@ -17,7 +17,11 @@ on:
 
 permissions:
   contents: read
-  id-token: write
+
+env:
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  BQ_DATASET: cicd_demo
+  BQ_LOCATION: US
 
 jobs:
   validate-and-dry-run:
@@ -34,8 +38,7 @@ jobs:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v3
         with:
-          workload_identity_provider: "projects/450158463415/locations/global/workloadIdentityPools/github-actions-pool/providers/github"
-          service_account: "450158463415-compute@developer.gserviceaccount.com"
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - name: Set up Google Cloud CLI
         uses: google-github-actions/setup-gcloud@v2
@@ -49,7 +52,7 @@ jobs:
       - name: BigQuery dry run
         run: |
           bq query \
-            --project_id="${{ secrets.GCP_PROJECT_ID }}" \
+            --project_id="${{ env.GCP_PROJECT_ID }}" \
             --use_legacy_sql=false \
             --dry_run \
             < bq/schemas/sample_customers.sql
@@ -70,8 +73,7 @@ jobs:
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v3
         with:
-          workload_identity_provider: "projects/450158463415/locations/global/workloadIdentityPools/github-actions-pool/providers/github"
-          service_account: "450158463415-compute@developer.gserviceaccount.com"
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - name: Set up Google Cloud CLI
         uses: google-github-actions/setup-gcloud@v2
@@ -80,21 +82,21 @@ jobs:
 
       - name: Create dataset if needed
         run: |
-          bq --project_id="${{ secrets.GCP_PROJECT_ID }}" \
+          bq --project_id="${{ env.GCP_PROJECT_ID }}" \
             mk --dataset \
-            --location=US \
+            --location=${{ env.BQ_LOCATION }} \
             --description="Dataset for CI/CD BigQuery demonstration" \
-            "${{ secrets.GCP_PROJECT_ID }}:cicd_demo" || true
+            "${{ env.GCP_PROJECT_ID }}:${{ env.BQ_DATASET }}" || true
 
       - name: Deploy BigQuery table
         run: |
           bq query \
-            --project_id="${{ secrets.GCP_PROJECT_ID }}" \
+            --project_id="${{ env.GCP_PROJECT_ID }}" \
             --use_legacy_sql=false \
             < bq/schemas/sample_customers.sql
 
       - name: Verify table
         run: |
           bq show \
-            --project_id="${{ secrets.GCP_PROJECT_ID }}" \
-            "${{ secrets.GCP_PROJECT_ID }}:cicd_demo.sample_customers"
+            --project_id="${{ env.GCP_PROJECT_ID }}" \
+            "${{ env.GCP_PROJECT_ID }}:${{ env.BQ_DATASET }}.sample_customers"
