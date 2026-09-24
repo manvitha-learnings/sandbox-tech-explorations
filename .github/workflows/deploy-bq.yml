@@ -3,17 +3,19 @@ name: BigQuery CI/CD
 on:
   pull_request:
     paths:
-      - "bq/**"
-      - "config/**"
+      - "bigquery_cicd/bq/**"
+      - "bigquery_cicd/config/**"
       - ".github/workflows/deploy-bq.yml"
 
   push:
     branches:
       - "feature/bq/sample-table-cicd"
     paths:
-      - "bq/**"
-      - "config/**"
+      - "bigquery_cicd/bq/**"
+      - "bigquery_cicd/config/**"
       - ".github/workflows/deploy-bq.yml"
+
+  workflow_dispatch: # Allow manual trigger from GitHub Actions UI
 
 permissions:
   contents: read
@@ -22,10 +24,7 @@ permissions:
 jobs:
   validate-and-dry-run:
     name: Validate and Dry Run
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: bigquery_cicd
+    runs-on: ubuntu-24.04   # Pinned to avoid ubuntu-latest migration to Ubuntu 26
 
     steps:
       - name: Checkout repository
@@ -38,30 +37,25 @@ jobs:
           service_account: "450158463415-compute@developer.gserviceaccount.com"
 
       - name: Set up Google Cloud CLI
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          install_components: bq
+        uses: google-github-actions/setup-gcloud@v3  # Updated from v2 to fix Node.js 20 deprecation
 
-      - name: Validate SQL file
+      - name: Validate SQL file (local structural checks)
         run: |
-          python bq/scripts/validate_schema.py
+          python bigquery_cicd/bq/scripts/validate_schema.py
 
-      - name: BigQuery dry run
+      - name: BigQuery dry run (syntax & permission check)
         run: |
           bq query \
             --project_id="${{ secrets.GCP_PROJECT_ID }}" \
             --use_legacy_sql=false \
             --dry_run \
-            < bq/schemas/sample_customers.sql
+            < bigquery_cicd/bq/schemas/sample_customers.sql
 
   deploy-table:
     name: Deploy BigQuery Table
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feature/bq/')
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: validate-and-dry-run
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: bigquery_cicd
+    runs-on: ubuntu-24.04   # Pinned to avoid ubuntu-latest migration to Ubuntu 26
 
     steps:
       - name: Checkout repository
@@ -74,9 +68,7 @@ jobs:
           service_account: "450158463415-compute@developer.gserviceaccount.com"
 
       - name: Set up Google Cloud CLI
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          install_components: bq
+        uses: google-github-actions/setup-gcloud@v3  # Updated from v2 to fix Node.js 20 deprecation
 
       - name: Create dataset if needed
         run: |
@@ -91,7 +83,7 @@ jobs:
           bq query \
             --project_id="${{ secrets.GCP_PROJECT_ID }}" \
             --use_legacy_sql=false \
-            < bq/schemas/sample_customers.sql
+            < bigquery_cicd/bq/schemas/sample_customers.sql
 
       - name: Verify table
         run: |
