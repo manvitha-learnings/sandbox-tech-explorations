@@ -1,61 +1,49 @@
-import subprocess
+"""
+validate_schema.py
+Performs local structural checks on BigQuery DDL files.
+The bq --dry_run is executed as a dedicated step in the GitHub Actions workflow.
+"""
+
 import sys
 from pathlib import Path
 
-
 SQL_FILE = Path(__file__).parent.parent / "schemas" / "sample_customers.sql"
+
+REQUIRED_KEYWORDS = [
+    "CREATE TABLE",
+    "sample_customers",
+    "PARTITION BY signup_date",
+    "CLUSTER BY customer_id",
+]
 
 
 def main():
+    # 1. File existence check
     if not SQL_FILE.exists():
-        print(f"SQL file not found: {SQL_FILE}")
+        print(f"[ERROR] SQL file not found: {SQL_FILE}")
         sys.exit(1)
 
     sql = SQL_FILE.read_text(encoding="utf-8").strip()
 
+    # 2. Empty file check
     if not sql:
-        print("SQL file is empty.")
+        print("[ERROR] SQL file is empty.")
         sys.exit(1)
 
-    required_text = [
-        "CREATE TABLE",
-        "sample_customers",
-        "PARTITION BY signup_date",
-        "CLUSTER BY customer_id",
-    ]
+    # 3. Required keyword checks
+    failed = False
+    for keyword in REQUIRED_KEYWORDS:
+        if keyword.lower() not in sql.lower():
+            print(f"[ERROR] Validation failed — missing required keyword: '{keyword}'")
+            failed = True
 
-    for item in required_text:
-        if item.lower() not in sql.lower():
-            print(f"Validation failed: missing '{item}'")
-            sys.exit(1)
-
-    print("SQL structure validation passed.")
-
-    try:
-        result = subprocess.run(
-            [
-                "bq",
-                "query",
-                "--use_legacy_sql=false",
-                "--dry_run",
-                sql,
-            ],
-            capture_output=True,
-            text=True,
-        )
-
-        if result.returncode != 0:
-            print("BigQuery dry-run failed:")
-            print(result.stderr)
-            sys.exit(1)
-
-        print("BigQuery dry-run validation passed.")
-
-    except FileNotFoundError:
-        print("bq command was not found.")
-        print("Install the Google Cloud CLI to run the local validation.")
+    if failed:
         sys.exit(1)
+
+    print("[OK] All local SQL structure checks passed.")
+    print(f"     File: {SQL_FILE}")
+    print(f"     Size: {len(sql)} characters")
 
 
 if __name__ == "__main__":
-    main()
+    main()
