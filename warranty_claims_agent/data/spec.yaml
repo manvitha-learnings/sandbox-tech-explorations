@@ -1,0 +1,57 @@
+id: warranty-claims-triage-agent
+name: Warranty Claims Triage Agent
+description: >
+  Analyzes incoming warranty claims, dealer repair orders, and technical
+  service bulletins (TSBs) to detect recurring failure patterns, flag
+  claims that match known open issues, and draft a triage summary for
+  Quality Engineering review.
+
+instruction_file: instructions.md
+
+# Which model tier this agent reasons with. Use a higher-effort model for
+# agents that need to synthesize across many documents; a lighter one for
+# simple lookups. Adjust to whatever tiers your Glean instance exposes.
+model: default-agentic
+
+# How this agent is invoked. "chat" lets any employee @-mention it in
+# Glean Assistant. Swap to a "schedule" or "content" trigger (see the
+# scheduled variant below) once you want it running unattended.
+trigger:
+  type: chat
+  examples:
+    - "Any recurring issues with the 2024 Model X rear axle claims this month?"
+    - "Summarize warranty claims for VIN prefix XXXX in the last 30 days"
+    - "Does this claim match any open TSB?"
+
+# Tool providers and specific tools this agent is allowed to call.
+# gleanSearchConfig scopes Glean's native search to the relevant
+# datasources so the agent doesn't pull in unrelated company content.
+tools:
+  - toolProviderId: glean-search
+    gleanSearchConfig:
+      datasources:
+        - warranty-claims-db      # custom datasource connector
+        - tsb-repository          # technical service bulletins
+        - dealer-repair-orders    # DMS / repair order exports
+        - quality-engineering-wiki
+  - toolProviderId: glean-chat
+  - toolProviderId: custom-action
+    actions:
+      - actionId: create-quality-ticket   # opens a QE ticket via internal API
+      - actionId: notify-slack-channel    # posts triage summary to #warranty-qe
+
+# Credentials used by the custom actions above. Configured separately in
+# the Glean Admin Console; referenced here by ID only — no secrets in this file.
+serviceCredentials:
+  - credentialId: warranty-db-service-account
+  - credentialId: qe-ticketing-api-key
+
+# Optional reusable skills this agent can draw on (see skills/ directory).
+skills:
+  - skills/failure-pattern-clustering
+  - skills/severity-scoring
+
+# No subagents for the first version — this is intentionally a single,
+# focused agent. A natural v2 split would be a "Recall Escalation" subagent
+# that only fires when severity-scoring flags a safety-relevant cluster.
+subagents: []

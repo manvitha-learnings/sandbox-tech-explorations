@@ -7,8 +7,8 @@
   },
   "servers": [
     {
-      "url": "https://warranty-claims-triage-agent-5swwqt7jfq-uc.a.run.app",
-      "description": "Cloud Run Agent Endpoint"
+      "url": "https://warranty-claims-triage-agent-rigjvltcea-uc.a.run.app",
+      "description": "Cloud Run Agent Runtime Endpoint"
     }
   ],
   "paths": {
@@ -16,7 +16,7 @@
       "post": {
         "operationId": "triageWarrantyClaims",
         "summary": "Triage warranty claims, TSBs, and repair orders",
-        "description": "Performs defect spike detection, pattern clustering, and severity scoring for vehicle models and VIN prefixes.",
+        "description": "Performs defect spike detection, pattern clustering, and severity scoring against NHTSA BigQuery data.",
         "requestBody": {
           "required": true,
           "content": {
@@ -29,19 +29,19 @@
                 "properties": {
                   "query": {
                     "type": "string",
-                    "description": "User question or triage prompt (e.g., 'Any recurring issues with Model X rear axle?')"
+                    "description": "User triage question"
                   },
                   "model": {
                     "type": "string",
-                    "description": "Optional vehicle model filter (e.g., 'Model X')"
+                    "description": "Optional vehicle model filter"
                   },
                   "vin_prefix": {
                     "type": "string",
-                    "description": "Optional 8-character VIN prefix (e.g., '1XYZ4A2X')"
+                    "description": "Optional 8-char VIN prefix"
                   },
                   "component": {
                     "type": "string",
-                    "description": "Optional component name (e.g., 'Rear Axle Assembly')"
+                    "description": "Optional component name"
                   }
                 }
               }
@@ -56,6 +56,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "status": {
+                      "type": "string"
+                    },
                     "summary": {
                       "type": "string"
                     },
@@ -81,6 +84,50 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/chat": {
+      "post": {
+        "operationId": "gleanCompatibleChat",
+        "summary": "Glean-compatible chat endpoint",
+        "description": "Accepts Glean message schema and returns triage analysis as assistant message.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "messages"
+                ],
+                "properties": {
+                  "messages": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "role": {
+                          "type": "string"
+                        },
+                        "content": {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Agent reply in Glean message format"
           }
         }
       }

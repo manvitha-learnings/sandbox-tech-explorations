@@ -72,61 +72,69 @@
           <span>Sample Triage Scenarios</span>
         </h2>
         <div class="space-y-2">
-          <button onclick="triggerPrompt('Any recurring issues with the Model X rear axle claims this month?')" class="w-full text-left p-2.5 rounded-lg bg-slate-800/80 hover:bg-indigo-900/30 border border-slate-700 hover:border-indigo-500/50 transition group">
+          <button onclick="triggerPrompt('Are there recurring issues with Chevrolet Silverado brake failures or loss of assist?')" class="w-full text-left p-2.5 rounded-lg bg-slate-800/80 hover:bg-indigo-900/30 border border-slate-700 hover:border-indigo-500/50 transition group">
             <div class="text-xs font-medium text-slate-200 group-hover:text-indigo-300 flex items-center justify-between">
-              <span>Recurring Issues Spike</span>
+              <span>Silverado Brake Failures</span>
               <i class="fa-solid fa-arrow-right text-[10px] opacity-0 group-hover:opacity-100 transition"></i>
             </div>
-            <p class="text-[11px] text-slate-400 mt-0.5 line-clamp-1">Model X rear axle claims & TSB match</p>
+            <p class="text-[11px] text-slate-400 mt-0.5 line-clamp-1">Silverado brake assist & TSB match</p>
           </button>
 
-          <button onclick="triggerPrompt('Summarize warranty claims for VIN prefix 1XYZ4A2X in the last 30 days')" class="w-full text-left p-2.5 rounded-lg bg-slate-800/80 hover:bg-indigo-900/30 border border-slate-700 hover:border-indigo-500/50 transition group">
+          <button onclick="triggerPrompt('Analyze recent steering lockup complaints and TSB matches for Honda Accord.')" class="w-full text-left p-2.5 rounded-lg bg-slate-800/80 hover:bg-indigo-900/30 border border-slate-700 hover:border-indigo-500/50 transition group">
             <div class="text-xs font-medium text-slate-200 group-hover:text-indigo-300 flex items-center justify-between">
-              <span>VIN Prefix Summary</span>
+              <span>Accord Steering Lockup</span>
               <i class="fa-solid fa-arrow-right text-[10px] opacity-0 group-hover:opacity-100 transition"></i>
             </div>
-            <p class="text-[11px] text-slate-400 mt-0.5 line-clamp-1">Batch 1XYZ4A2X mileage & cost distribution</p>
+            <p class="text-[11px] text-slate-400 mt-0.5 line-clamp-1">EPS gearbox sticking & TSB AATS30466</p>
           </button>
 
-          <button onclick="triggerPrompt('Does this claim match any open TSB for Model X rear axle whine?')" class="w-full text-left p-2.5 rounded-lg bg-slate-800/80 hover:bg-indigo-900/30 border border-slate-700 hover:border-indigo-500/50 transition group">
+          <button onclick="triggerPrompt('Summarize high-severity transmission shudder defect clusters for Ford F-150.')" class="w-full text-left p-2.5 rounded-lg bg-slate-800/80 hover:bg-indigo-900/30 border border-slate-700 hover:border-indigo-500/50 transition group">
             <div class="text-xs font-medium text-slate-200 group-hover:text-indigo-300 flex items-center justify-between">
-              <span>TSB Matching Check</span>
+              <span>F-150 Transmission Shudder</span>
               <i class="fa-solid fa-arrow-right text-[10px] opacity-0 group-hover:opacity-100 transition"></i>
             </div>
-            <p class="text-[11px] text-slate-400 mt-0.5 line-clamp-1">Correlates with TSB-25-03-014 root cause</p>
+            <p class="text-[11px] text-slate-400 mt-0.5 line-clamp-1">10R80 transmission & TSB 25-2383</p>
+          </button>
+
+          <button onclick="triggerPrompt('Check open TSBs and recalls for Toyota RAV4 electrical and hybrid cable issues.')" class="w-full text-left p-2.5 rounded-lg bg-slate-800/80 hover:bg-indigo-900/30 border border-slate-700 hover:border-indigo-500/50 transition group">
+            <div class="text-xs font-medium text-slate-200 group-hover:text-indigo-300 flex items-center justify-between">
+              <span>RAV4 Hybrid & Cablegate</span>
+              <i class="fa-solid fa-arrow-right text-[10px] opacity-0 group-hover:opacity-100 transition"></i>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-0.5 line-clamp-1">Cable corrosion & TSB 0072-20</p>
           </button>
         </div>
       </div>
 
-      <!-- Connected Mock Data Sources -->
+      <!-- Connected BigQuery Data Sources -->
       <div class="pt-4 border-t border-slate-800">
         <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-          <i class="fa-solid fa-database text-slate-400"></i>
-          <span>Connected Knowledge Stores</span>
+          <i class="fa-solid fa-database text-indigo-400"></i>
+          <span>Live BigQuery NHTSA Data</span>
         </h2>
         <div class="space-y-2 text-xs">
           <div class="flex items-center justify-between p-2 rounded bg-slate-800/50 border border-slate-800">
-            <span class="text-slate-300 flex items-center gap-2"><i class="fa-solid fa-file-invoice text-indigo-400"></i> Warranty Claims DB</span>
-            <span class="text-[11px] bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded font-mono">4 loaded</span>
+            <span class="text-slate-300 flex items-center gap-2"><i class="fa-solid fa-file-invoice text-indigo-400"></i> NHTSA Complaints</span>
+            <span class="text-[11px] bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded font-mono">198k+ rows</span>
           </div>
           <div class="flex items-center justify-between p-2 rounded bg-slate-800/50 border border-slate-800">
             <span class="text-slate-300 flex items-center gap-2"><i class="fa-solid fa-book text-amber-400"></i> TSB Repository</span>
-            <span class="text-[11px] bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded font-mono">3 bulletins</span>
+            <span class="text-[11px] bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded font-mono">772k+ TSBs</span>
           </div>
           <div class="flex items-center justify-between p-2 rounded bg-slate-800/50 border border-slate-800">
-            <span class="text-slate-300 flex items-center gap-2"><i class="fa-solid fa-wrench text-blue-400"></i> Dealer Repair Orders</span>
-            <span class="text-[11px] bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded font-mono">3 orders</span>
+            <span class="text-slate-300 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-rose-400"></i> Safety Recalls</span>
+            <span class="text-[11px] bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded font-mono">4.7k+ rows</span>
           </div>
           <div class="flex items-center justify-between p-2 rounded bg-slate-800/50 border border-slate-800">
-            <span class="text-slate-300 flex items-center gap-2"><i class="fa-solid fa-shield-halved text-emerald-400"></i> QE Wiki & Protocols</span>
-            <span class="text-[11px] bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded font-mono">3 articles</span>
+            <span class="text-slate-300 flex items-center gap-2"><i class="fa-solid fa-shield-halved text-emerald-400"></i> Jira & Slack Escalation</span>
+            <span class="text-[11px] bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded font-mono">Connected</span>
           </div>
         </div>
       </div>
 
       <!-- Agent Architecture -->
       <div class="mt-auto pt-4 border-t border-slate-800 text-[11px] text-slate-400 space-y-1">
-        <p><strong class="text-slate-300">Model:</strong> gemini-2.5-flash</p>
+        <p><strong class="text-slate-300">Model:</strong> gemini-3.5-flash-lite</p>
         <p><strong class="text-slate-300">Runtime:</strong> Google ADK + FastAPI</p>
         <p><strong class="text-slate-300">Billing:</strong> 100% Free Tier (Gemini API)</p>
       </div>

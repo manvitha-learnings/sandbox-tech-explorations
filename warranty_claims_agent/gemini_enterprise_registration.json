@@ -1,0 +1,31 @@
+{
+  "name": "projects/23156571688/locations/global/collections/default_collection/engines/warranty-claims-triage/assistants/default_assistant/agents/4765741837975805445",
+  "displayName": "Warranty Claims Triage Agent",
+  "description": "Analyzes incoming warranty claims, dealer repair orders, and TSBs to detect recurring failure patterns, flag claims matching known open issues, and draft triage summaries for Quality Engineering.",
+  "updateTime": "2026-10-14T15:14:56.095039Z",
+  "adkAgentDefinition": {
+    "toolSettings": {
+      "toolDescription": "Analyzes incoming warranty claims, dealer repair orders, and TSBs to detect recurring failure patterns, flag claims matching known open issues, and draft triage summaries for Quality Engineering."
+    },
+    "provisionedReasoningEngine": {
+      "reasoningEngine": "projects/23156571688/locations/us-central1/reasoningEngines/1585452061665787904"
+    }
+  },
+  "state": "ENABLED",
+  "starterPrompts": [
+    {
+      "text": "Are there recurring issues with Chevrolet Silverado brake failures or loss of assist?"
+    },
+    {
+      "text": "Analyze recent steering lockup complaints and TSB matches for Honda Accord."
+    },
+    {
+      "text": "Summarize high-severity transmission shudder defect clusters for Ford F-150."
+    },
+    {
+      "text": "Check open TSBs and recalls for Toyota RAV4 electrical and hybrid cable issues."
+    }
+  ],
+  "activeRevision": "projects/23156571688/locations/global/collections/default_collection/engines/warranty-claims-triage/assistants/default_assistant/agents/4765741837975805445/revisions/925132731070158797",
+  "agentIdentityInfo": {}
+}
